@@ -22,13 +22,16 @@ domains
 	actual=integer
 	limite=integer
 	pila=p(lbox,actual,limite)
-	almacen=pila*
+	almacen=alm(pila,pila,pila,pila,pila)
+	estado=est(lbox, almacen)
+	lista=estado*
+	
 	
 predicates
 		
 	/*perteneceapila(lbox, pila)*//*obtenemos la lista de cajas de la pila*/
 	/*pilavacia(pila)*/
-	nondeterm cima(box,lbox)/*obtenemos la caja que se encuentra en la cima de la pila, es decir la ultima de lbox*/
+	cima(box,lbox)/*obtenemos la caja que se encuentra en la cima de la pila, es decir la ultima de lbox*/
 
 	/*movercaja(pila,pila)*//*movemos la caja de una pila a otra para colocarla*/
 	caja_valida(box,box)/*comparamos las fechas de salidas de la caja seleccionada y 
@@ -36,51 +39,100 @@ predicates
 	/*escribe(almacen)*//*escribimos la salida del programa*/
 	/***
 	****/
-	pila(lbox,pila)
-	resuelve(lbox,almacen)
+	mueve(estado,estado,lista)
+	miembro(estado,lista)
+	pila(box,pila,pila)
+	resuelve(lista)
+	insertarFinal(lbox,box,lbox)
+	/*escribeEstado(estado)*/
+	/*escribeAlmacen(almacen)*/
 
 	
 		
 clauses
 
 
-
+	 insertarFinal([], E, [E]).
+	 
+   	 insertarFinal([Cabeza|Resto], Elemento, [Cabeza|Lista]):-
+         	insertarFinal(Resto, Elemento, Lista).
 
 	/*comprobar la cajas*/
 	cima(Box,[Box]).
 	cima(Box,[_|Resto]):-
 		cima(Box,Resto).
 				
-	caja_valida(b(IN,DentN,DsalN),b(IA,DentA,DsalA)):-
+	caja_valida(b(_,_,DsalN),b(_,_,DsalA)):-
 		DsalA >= DsalN.
 		
-	resuelve([],Almasenaje):-
-		write(Almasenaje, "\n").
-			
-
-			
-			
-	pila(_,p(_,4,_)).
-	
-	pila([Primero|Cola],p(Apiladas,0,Limite)):-
-		NuevoLbox=[Primero],
-		NuevoActual=1,
-		pila(Cola,p(NuevoLbox,NuevoActual,Limite)).	
-			
-	pila([Primero|Cola],p(Lbox,Actual,Limite)):-
-		cima(Box,Lbox),
-		caja_valida(Primero,Box),
-		NuevoLbox=[Primero|Lbox],
-		NuevoActual=Actual+1,
-		pila(Cola,p(NuevoLbox,NuevoActual,Limite)).
+	/*Estados repetidos */
+        miembro(E,[E|_]).
+        miembro(E,[_|T]):-
+        	miembro(E,T).
+        	
+       	/*mueve(EstadoI,EstadoF,[Cabeza|Rest]):-
+        	resuelve(Rest).*/
+        	
+        /*Inicio mueve colocar cajas*/
+        mueve(est(LProduccion, alm(PilaI,Pila2,Pila3,Pila4,Pila5)),est(Lfinal, alm(PilaF,Pila2,Pila3,Pila4,Pila5)),Estados):-
+        	LProduccion=[Box|Resto],
+        	pila(Box,PilaI,PilaF),
+        	Lfinal=Resto.
+        	
+        mueve(est(LProduccion, alm(Pila1,PilaI,Pila3,Pila4,Pila5)),est(Lfinal, alm(Pila1,PilaF,Pila3,Pila4,Pila5)),Estados):-
+        	LProduccion=[Box|Resto],
+        	pila(Box,PilaI,PilaF),
+        	Lfinal=Resto.
+        	
+        mueve(est(LProduccion, alm(Pila1,Pila2,PilaI,Pila4,Pila5)),est(Lfinal, alm(Pila1,Pila2,PilaF,Pila4,Pila5)),Estados):-
+        	LProduccion=[Box|Resto],
+        	pila(Box,PilaI,PilaF),
+        	Lfinal=Resto.
+        	
+        mueve(est(LProduccion, alm(Pila1,Pila2,Pila3,PilaI,Pila5)),est(Lfinal, alm(Pila1,Pila2,Pila3,PilaF,Pila5)),Estados):-
+        	LProduccion=[Box|Resto],
+        	pila(Box,PilaI,PilaF),
+        	Lfinal=Resto.
+        	
+        mueve(est(LProduccion, alm(Pila1,Pila2,Pila3,Pila4,PilaI)),est(Lfinal, alm(Pila1,Pila2,Pila3,Pila4,PilaF)),Estados):-
+        	LProduccion=[Box|Resto],
+        	pila(Box,PilaI,PilaF),
+        	Lfinal=Resto.
+        	
+        pila(Box,p(Lbox,0,Limite),PilaF):-
+        	NLbox=[Box|Lbox],
+        	PilaF=p(NLbox,1,Limite).
+        		
+        pila(Box,p(Lbox,Actual,Limite),PilaF):-
+        	Actual<Limite,
+        	cima(Cima,Lbox),
+        	caja_valida(Box,Cima),
+        	NLbox=[Box|Lbox],
+        	NActual=Actual+1,
+        	PilaF=p(NLbox,NActual,Limite).
+        	
+        
+        		
+	resuelve([est([],Almacen)|_]):-
+		write(Almacen).
 		
+	resuelve(Estados):-
+		Estados=[UltimoEstado|Resto],
+        	not(miembro(UltimoEstado,Resto)),
+        	mueve(UltimoEstado,SiguienteEstado,Estados),
+        	NuevoEstados=[SiguienteEstado|Estados],
+        	resuelve(NuevoEstados).
+			
 		
-		
-		
-	
+        /*escribeEstado(est(Lbox,Almacen)):-
+       			escribeAlmacen(Almacen).
+			*/
+	/*escribeAlmacen(alm(p(Lbox,Actual,Limite),Pila2,Pila3,Pila4,Pila5)):-
+			write(Pila2,"\n").*/
+			
 
 goal
 
   
-  	resuelve([b(9,1,17),b(10,1,17),b(11,1,17),b(12,1,17),b(13,1,17),b(14,1,17),b(15,1,17),b(16,1,17),b(17,1,17),b(18,1,17),b(19,1,17),b(20,1,17),b(3,1,18),b(4,1,18),b(5,1,18),b(6,1,18),b(7,1,18),b(8,1,18),b(1,1,19),b(2,1,19)],Almasen).
+  	resuelve([est([b(9,1,17),b(10,1,17),b(11,1,35),b(12,1,17),b(13,1,17),b(14,1,17),b(15,1,17),b(16,1,17),b(17,1,17),b(18,1,17),b(19,1,17),b(20,1,17),b(3,1,18),b(4,1,18),b(5,1,18),b(6,1,18),b(7,1,18),b(8,1,18),b(1,1,19),b(2,1,19)],alm(p([],0,4),p([],0,4),p([],0,4),p([],0,4),p([],0,4)))|[]]).
 	
