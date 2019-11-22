@@ -39,7 +39,7 @@ predicates
 	/*escribe(almacen)*//*escribimos la salida del programa*/
 	/***
 	****/
-	mueve(estado,estado,lista)
+	mueve(estado,estado)
 	miembro(estado,lista)
 	pila(box,pila,pila)
 	resuelve(lista)
@@ -52,10 +52,7 @@ predicates
 clauses
 
 
-	 insertarFinal([], E, [E]).
-	 
-   	 insertarFinal([Cabeza|Resto], Elemento, [Cabeza|Lista]):-
-         	insertarFinal(Resto, Elemento, Lista).
+
 
 	/*comprobar la cajas*/
 	cima(Box,[Box]).
@@ -70,32 +67,32 @@ clauses
         miembro(E,[_|T]):-
         	miembro(E,T).
         	
-       	mueve(EstadoI,EstadoF,Estados):-
-        	Estados=[UltimoEstado|Resto],
-        	resuelve(Resto).
+       	mueve(est(LProduccionIni,AlmacenI),est([CajaNoValida|LProduccionFin],AlmacenF)):-
+        	LProduccionIni=[CajaNoValida|ListaSiguienteCaja],
+        	mueve(est(ListaSiguienteCaja,AlmacenI),est(LProduccionFin,AlmacenF)).
         	
         /*Inicio mueve colocar cajas*/
-        mueve(est(LProduccion, alm(PilaI,Pila2,Pila3,Pila4,Pila5)),est(Lfinal, alm(PilaF,Pila2,Pila3,Pila4,Pila5)),Estados):-
+        mueve(est(LProduccion, alm(PilaI,Pila2,Pila3,Pila4,Pila5)),est(Lfinal, alm(PilaF,Pila2,Pila3,Pila4,Pila5))):-
         	LProduccion=[Box|Resto],
         	pila(Box,PilaI,PilaF),
         	Lfinal=Resto.
         	
-        mueve(est(LProduccion, alm(Pila1,PilaI,Pila3,Pila4,Pila5)),est(Lfinal, alm(Pila1,PilaF,Pila3,Pila4,Pila5)),Estados):-
+        mueve(est(LProduccion, alm(Pila1,PilaI,Pila3,Pila4,Pila5)),est(Lfinal, alm(Pila1,PilaF,Pila3,Pila4,Pila5))):-
         	LProduccion=[Box|Resto],
         	pila(Box,PilaI,PilaF),
         	Lfinal=Resto.
         	
-        mueve(est(LProduccion, alm(Pila1,Pila2,PilaI,Pila4,Pila5)),est(Lfinal, alm(Pila1,Pila2,PilaF,Pila4,Pila5)),Estados):-
+        mueve(est(LProduccion, alm(Pila1,Pila2,PilaI,Pila4,Pila5)),est(Lfinal, alm(Pila1,Pila2,PilaF,Pila4,Pila5))):-
         	LProduccion=[Box|Resto],
         	pila(Box,PilaI,PilaF),
         	Lfinal=Resto.
         	
-        mueve(est(LProduccion, alm(Pila1,Pila2,Pila3,PilaI,Pila5)),est(Lfinal, alm(Pila1,Pila2,Pila3,PilaF,Pila5)),Estados):-
+        mueve(est(LProduccion, alm(Pila1,Pila2,Pila3,PilaI,Pila5)),est(Lfinal, alm(Pila1,Pila2,Pila3,PilaF,Pila5))):-
         	LProduccion=[Box|Resto],
         	pila(Box,PilaI,PilaF),
         	Lfinal=Resto.
         	
-        mueve(est(LProduccion, alm(Pila1,Pila2,Pila3,Pila4,PilaI)),est(Lfinal, alm(Pila1,Pila2,Pila3,Pila4,PilaF)),Estados):-
+        mueve(est(LProduccion, alm(Pila1,Pila2,Pila3,Pila4,PilaI)),est(Lfinal, alm(Pila1,Pila2,Pila3,Pila4,PilaF))):-
         	LProduccion=[Box|Resto],
         	pila(Box,PilaI,PilaF),
         	Lfinal=Resto.
@@ -120,7 +117,7 @@ clauses
 	resuelve(Estados):-
 		Estados=[UltimoEstado|Resto],
         	not(miembro(UltimoEstado,Resto)),
-        	mueve(UltimoEstado,SiguienteEstado,Estados),
+        	mueve(UltimoEstado,SiguienteEstado),
         	NuevoEstados=[SiguienteEstado|Estados],
         	resuelve(NuevoEstados).
 			
@@ -135,5 +132,5 @@ clauses
 goal
 
   
-  	resuelve([est([b(9,1,17),b(10,1,17),b(11,1,17),b(12,1,17),b(13,1,17),b(14,1,17),b(15,1,17),b(16,1,17),b(17,1,17),b(18,1,17),b(19,1,17),b(20,1,17),b(3,1,18),b(4,1,18),b(5,1,18),b(6,1,18),b(7,1,18),b(8,1,18),b(1,1,19),b(2,1,19)],alm(p([],0,4),p([],0,4),p([],0,4),p([],0,4),p([],0,4)))|[]]).
+  	resuelve([est([b(9,1,17),b(10,1,17),b(11,1,35),b(12,1,17),b(13,1,17),b(14,1,17),b(15,1,17),b(16,1,17),b(17,1,17),b(18,1,17),b(19,1,17),b(20,1,17),b(3,1,18),b(4,1,18),b(5,1,18),b(6,1,18),b(7,1,18),b(8,1,18),b(1,1,19),b(2,1,19)],alm(p([],0,4),p([],0,4),p([],0,4),p([],0,4),p([],0,4)))|[]]).
 	
